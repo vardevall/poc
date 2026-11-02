@@ -1,0 +1,248 @@
+{
+  "document": "vv-04 Switch API",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "challenge_construction": [
+    {
+      "description": "stateless switch challenge",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "t": 1789300000,
+        "nonce": "cf982efb91ee15004920313aa20447db"
+      },
+      "output": {
+        "t_bytes": "208da66a00000000",
+        "mac": "bf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "challenge_base32": "ecg2m2qaaaaabt4yf35zd3qvabesamj2uicepw57n5wi56nri6wyhyhaosr647ur",
+        "response_body": "{\"challenge\":\"ecg2m2qaaaaabt4yf35zd3qvabesamj2uicepw57n5wi56nri6wyhyhaosr647ur\",\"expires_in\":60}"
+      }
+    }
+  ],
+  "challenge_verification": [
+    {
+      "description": "fresh challenge",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789300000
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "60 s old: accepted",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789300060
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "61 s old: rejected",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789300061
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "5 s in the future: accepted",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789299995
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "6 s in the future: rejected",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789299994
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "t modified: MAC fails",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "218da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "now": 1789300000
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "MAC modified",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e11",
+        "now": 1789300000
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "truncated to 39 bytes",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e",
+        "now": 1789300000
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "different challenge secret",
+      "section": "vv-04 §4.2",
+      "input": {
+        "challenge_secret": "6b01e21f83c147bd8488f3635bbac26a5f21f599a6b649aacf8a132caa985d40",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447db974d790946e14524381323c948ba210b",
+        "now": 1789300000
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ],
+  "registration": [
+    {
+      "description": "registration with the exporter binding",
+      "section": "vv-04 §4.3, §4.4; vv-01 §5.5",
+      "input": {
+        "node_sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "switch_seed": "e69d0a76d6effd66c7ff52942c2891e78df5e980fd469ab21f4f2429c22cb4da",
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "host": "switch.example.org",
+        "exporter": "02aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a"
+      },
+      "output": {
+        "binding_value": "0102aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a",
+        "b": "0102aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a127377697463682e6578616d706c652e6f72672c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc664164922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "sw_pk": "502caaed1dbd80979afb0efafa74e6617f1f31f6513f4cc9142b10b7a78fd54a",
+        "node_proof": "dfc7733b8a398e58ef9ae11e87753f82dd8d5d8017ea8db81163eeff4cdc50d9",
+        "net_proof": "cd24174b929da3303cb9ab8c174112c226194424fd20d9f2dac7498343f1e7db",
+        "switch_proof": "2531e1a46f8ddd92ce47b510316b594e6abc75cd6433628bc0a4cb3e05599f1a",
+        "switch_proof_base32": "euy6djdprxozftshwuidc22zjzvly5onmqzwfc6autft4bkzt4na",
+        "request_body": "{\"node\":\"fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla\",\"network\":\"jerfi3btrexaonmum7ljo3b33edtieqjdcez5sy3xgtedhkgyqjq\",\"binding\":\"exporter\",\"host\":\"switch.example.org\",\"node_proof\":\"37dxgo4khghfr3424epio5j7qloy2xmac7vi3oarmpxp6tg4kdmq\",\"net_proof\":\"zusbos4stwrtapfzvogboqisyitbsrbe7uqnt4w2y5eygq7r47nq\"}"
+      },
+      "note": "request_body is one valid serialisation; JSON has no canonical form (vv-01 §3.3)"
+    },
+    {
+      "description": "registration with the challenge binding",
+      "section": "vv-04 §4.3, §4.4; vv-01 §5.5",
+      "input": {
+        "node_sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "switch_seed": "e69d0a76d6effd66c7ff52942c2891e78df5e980fd469ab21f4f2429c22cb4da",
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "host": "switch.example.org",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91"
+      },
+      "output": {
+        "binding_value": "02208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "b": "02208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91127377697463682e6578616d706c652e6f72672c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc664164922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "sw_pk": "502caaed1dbd80979afb0efafa74e6617f1f31f6513f4cc9142b10b7a78fd54a",
+        "node_proof": "0a74f87c1fd22220cdce65916b36fece3448212e904ad45bbff02784dce452c1",
+        "net_proof": "cbf79a3b3be2c4074b241a64b71c71dc2f5fe8812a7dbd689b284dbce9601792",
+        "switch_proof": "706a0e6a689393cb03cd0dce0d1e128b183b48d9c1d42be59ff6f9c47015581c",
+        "switch_proof_base32": "obva42tisoj4wa6nbxha2hqsrmmdwsgzyhkcxzm76344i4avlaoa",
+        "request_body": "{\"node\":\"fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla\",\"network\":\"jerfi3btrexaonmum7ljo3b33edtieqjdcez5sy3xgtedhkgyqjq\",\"binding\":\"challenge\",\"host\":\"switch.example.org\",\"node_proof\":\"bj2pq7a72ircbtoomwiwwnx6zy2eqijosbfniw576atyjxheklaq\",\"net_proof\":\"zp3zuoz34lcaoszedjslohdr3qxv72ebfj6322e3fbg3z2lac6ja\",\"challenge\":\"ecg2m2qaaaaabt4yf35zd3qvabesamj2uicepw57n5wi56nri6wyhyhaosr647ur\"}"
+      },
+      "note": "request_body is one valid serialisation; JSON has no canonical form (vv-01 §3.3)"
+    }
+  ],
+  "proof_relay": [
+    {
+      "description": "proofs for another switch differ (not transferable)",
+      "section": "vv-04 §9; vv-01 §5.5",
+      "input": {
+        "node_sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "A": "038031ee370b1442416fd562824d95ede551cae8f98cda07a7843b78ec8a1749",
+        "exporter": "02aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a",
+        "host": "switch.example.org"
+      },
+      "output": {
+        "b": "0102aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a127377697463682e6578616d706c652e6f72672c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc664164922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413038031ee370b1442416fd562824d95ede551cae8f98cda07a7843b78ec8a1749",
+        "node_proof": "030046c8c286600d48ec86c8f4b2e5a11c7c3bdb70e16c2ffaca3c79f4193628",
+        "net_proof": "ea0b862b724f99e9a39bd94313c8618c239bb64990d0c13f5e156f3866119884",
+        "switch_proof": "330c54a4725dd2d92e36c93d966d77f09d4e9dae38e62692783e9c6803eaa6b0"
+      }
+    },
+    {
+      "description": "proofs under another host name differ (a switch claiming this key cannot relay them)",
+      "section": "vv-04 §4.3, §9",
+      "input": {
+        "node_sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "challenge": "208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e91",
+        "host": "relay.example.net"
+      },
+      "output": {
+        "b": "02208da66a00000000cf982efb91ee15004920313aa20447dbbf6f6c8ef9b147ad83e0e074a3ee7e911172656c61792e6578616d706c652e6e65742c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc664164922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "node_proof": "b2340077c0eafd671aea3b425a562a3f4ef14205834e5522b623e15af1586240",
+        "net_proof": "328a13f942cfed9f78dfd609760560ce3e70e82c906cad81111f9249e65dc5e9",
+        "switch_proof": "a4a0196cd972c3bc22fdb3f0be22460fcef3d9bc1b23946ceba3262d9ea31690"
+      }
+    }
+  ],
+  "turn_credentials": [
+    {
+      "description": "TURN REST credential",
+      "section": "vv-04 §4.5",
+      "input": {
+        "turn_secret_string": "vardevall tëst türn secret",
+        "turn_secret_utf8": "766172646576616c6c2074c3ab73742074c3bc726e20736563726574",
+        "expiry": 1789386400,
+        "opaque_id": "wwlphp6dtd3y3tpf"
+      },
+      "output": {
+        "username": "1789386400:wwlphp6dtd3y3tpf",
+        "credential": "RwXyTEM01FmovFMgHVKFVMPJhDM=",
+        "ttl": 86400
+      },
+      "note": "the HMAC key is the UTF-8 encoding of the configured string; base64 is RFC 4648 §4 with padding"
+    }
+  ],
+  "pinned_certificate": [
+    {
+      "description": "public key of a pinned switch certificate",
+      "section": "vv-04 §2.3",
+      "input": {
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47"
+      },
+      "output": {
+        "subject_public_key_info_der": "302a300506032b6570032100b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47"
+      },
+      "note": "clients compare the end-entity certificate's SubjectPublicKeyInfo (or its key) with this, nothing else"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+[Unit]
+Description=vardevall interface %i
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/vardevall/interfaces/%i.toml
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/vv-quick up %i
+Restart=on-failure
+RestartSec=2
+# SIGTERM goes to vv-quick alone: it stops vv and takes the host's changes away.
+KillMode=mixed
+TimeoutStopSec=30
+# The exits a client has learned are kept in $STATE_DIRECTORY/<interface>.exits.json.
+StateDirectory=vardevall
+# vv-quick runs as root: it adds rules, routes, addresses and nftables tables, and vv needs
+# /dev/net/tun and CAP_NET_ADMIN.
+
+[Install]
+WantedBy=multi-user.target

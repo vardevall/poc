@@ -1,0 +1,868 @@
+{
+  "document": "vv-01 Keys, Encodings and Derivations",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "base32_encode": [
+    {
+      "description": "0-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": ""
+      },
+      "output": {
+        "text": "",
+        "length": 0
+      }
+    },
+    {
+      "description": "1-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "32"
+      },
+      "output": {
+        "text": "gi",
+        "length": 2
+      }
+    },
+    {
+      "description": "2-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "7b8e"
+      },
+      "output": {
+        "text": "poha",
+        "length": 4
+      }
+    },
+    {
+      "description": "3-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "5f2d98"
+      },
+      "output": {
+        "text": "l4wzq",
+        "length": 5
+      }
+    },
+    {
+      "description": "4-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "4dc1995e"
+      },
+      "output": {
+        "text": "jxazsxq",
+        "length": 7
+      }
+    },
+    {
+      "description": "5-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "a274282d7e"
+      },
+      "output": {
+        "text": "uj2cqll6",
+        "length": 8
+      }
+    },
+    {
+      "description": "6-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "7cb7d1be7224"
+      },
+      "output": {
+        "text": "ps35dptseq",
+        "length": 10
+      }
+    },
+    {
+      "description": "10-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "36a651855db367318702"
+      },
+      "output": {
+        "text": "g2tfdbk5wnttdbyc",
+        "length": 16
+      }
+    },
+    {
+      "description": "32-byte value",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "83ed6b0344b5e44e199315b5bfab1aa6f1c5cb852b81f97c0f58fb4ff434cb0d"
+      },
+      "output": {
+        "text": "qpwwwa2ewxse4gmtcw237ky2u3y4ls4ffoa7s7apld5u75buzmgq",
+        "length": 52
+      }
+    },
+    {
+      "description": "the example of vv-01 §3.2",
+      "section": "vv-01 §3.2",
+      "input": {
+        "bytes": "000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"
+      },
+      "output": {
+        "text": "aaaqeayeaudaocajbifqydiob4ibceqtcqkrmfyydenbwha5dypq",
+        "length": 52
+      }
+    }
+  ],
+  "base32_decode": [
+    {
+      "description": "lowercase 32-byte key",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": true,
+        "bytes": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "uppercase is accepted",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "FR7W42DEDCPK5273ILH54D2PFDQ4G32JXD4FOPO76ZELBXOGMQLA",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": true,
+        "bytes": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "mixed case is accepted",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "FR7W42DEDCPK5273ILH54D2PFDq4g32jxd4fopo76zelbxogmqla",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": true,
+        "bytes": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "alternating case is accepted",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fR7W42dEdCpK5273iLh54D2PfDq4g32JxD4FoPo76ZeLbXoGmQlA",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": true,
+        "bytes": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "empty string is zero bytes",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": true,
+        "bytes": ""
+      }
+    },
+    {
+      "description": "one byte",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "my",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": true,
+        "bytes": "66"
+      }
+    },
+    {
+      "description": "padding is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "my======",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "partial padding is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "my=",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "leading whitespace is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": " fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "trailing newline is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla\n",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "inner space is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfd q4g32jxd4fopo76zelbxogmqla",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "length 1 mod 8 is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "m",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "length 3 mod 8 is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "mzx",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "length 6 mod 8 is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "mzxw6y",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "non-zero unused bits in the final character are rejected ('mz' for 'f')",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "mz",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "non-zero unused bits in a 32-byte key are rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqlb",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "digit 0 is not in the alphabet",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "m0",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "digit 1 is not in the alphabet",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "m1",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "digit 8 is not in the alphabet",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "m8",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "non-ASCII letter is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "mý",
+        "fixed_size": null
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "51 characters for a 32-byte field are rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmql",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "56 characters (35 bytes) for a 32-byte field are rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "e4tgnyxic7l5vwlqlv5ufw6szmfiovmd6enyrzgseavckvhztdjdvuw2",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "a valid 31-byte value for a 32-byte field is rejected",
+      "section": "vv-01 §3.2",
+      "input": {
+        "text": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmq",
+        "fixed_size": 32
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ],
+  "x25519": [
+    {
+      "description": "DH_PUB of the network DH key of these vectors",
+      "section": "vv-01 §2.1, §4",
+      "input": {
+        "sk": "db6fe74d16c2485eb41cdce1cfffcdc22992cdec7bd250839a29eaec68e98c48"
+      },
+      "output": {
+        "pk": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413"
+      }
+    },
+    {
+      "description": "DH_PUB of the node key alice of these vectors",
+      "section": "vv-01 §2.1, §4",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73"
+      },
+      "output": {
+        "pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "DH_PUB of the node key bob of these vectors",
+      "section": "vv-01 §2.1, §4",
+      "input": {
+        "sk": "80d165627436157eb491affaa6bf47b7333bb2f0eb34a8dcf83f38151997a45c"
+      },
+      "output": {
+        "pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      }
+    },
+    {
+      "description": "DH between alice and bob",
+      "section": "vv-01 §2.1",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "valid": true,
+        "dh": "db72f9c449f7e23867073ff5459928f5755929198bdc26a688cc2816da5a7a40"
+      }
+    },
+    {
+      "description": "an unclamped private key is clamped on use (same public key as the clamped one)",
+      "section": "vv-01 §2.2",
+      "input": {
+        "sk": "6f9f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdaef3"
+      },
+      "output": {
+        "pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      }
+    },
+    {
+      "description": "all-zero DH output is rejected: u = 0",
+      "section": "vv-01 §2.2",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "pk": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "all-zero DH output is rejected: u = 1",
+      "section": "vv-01 §2.2",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "pk": "0100000000000000000000000000000000000000000000000000000000000000"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "all-zero DH output is rejected: u = p - 1",
+      "section": "vv-01 §2.2",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "pk": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "all-zero DH output is rejected: order-8 point u = 325606250916557431795983626356110631294008115727848805560023387167927233504",
+      "section": "vv-01 §2.2",
+      "input": {
+        "sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "pk": "e0eb7a7c3b41b8ae1656e3faf19fc46ada098deb9c32b1fd866205165f49b800"
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ],
+  "ed_to_x_pub": [
+    {
+      "description": "switch key of these vectors",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47"
+      },
+      "output": {
+        "valid": true,
+        "u": "502caaed1dbd80979afb0efafa74e6617f1f31f6513f4cc9142b10b7a78fd54a"
+      }
+    },
+    {
+      "description": "RFC 8032 §7.1 TEST 1 key",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a"
+      },
+      "output": {
+        "valid": true,
+        "u": "d85e07ec22b0ad881537c2f44d662d1a143cf830c57aca4305d85c7a90f6b62e"
+      }
+    },
+    {
+      "description": "rejected: identity (order 1)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0100000000000000000000000000000000000000000000000000000000000000"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 2: (0, -1)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "ecffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 4",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0000000000000000000000000000000000000000000000000000000000000080"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 4, other point",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 8",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac037a"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 8, second point",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc05"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 8, third point",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "26e8958fc2b227b045c3f489f2ef98f0d5dfac05d3c63339b13802886d53fc85"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: order 8, fourth point",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "c7176a703d4dd84fba3c0b760d10670f2a2053fa2c39ccc64ec7fd7792ac03fa"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: non-canonical y = p (decodes to nothing)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "edffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: non-canonical y = p + 1, which would be the identity",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "eeffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff7f"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: x = 0 with the sign bit set",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0100000000000000000000000000000000000000000000000000000000000080"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: y = 0 with sign bit set (order-4 point, other x)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0000000000000000000000000000000000000000000000000000000000000080"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: y = 2: no x satisfies the curve equation",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "0200000000000000000000000000000000000000000000000000000000000000"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: outside the prime-order subgroup (switch key plus an order 8 point, not itself of small order)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "d69ca224a4c75c8aac04c312e2cb618c31efdc5bbd3dd1459cbb8c2da5f909fd"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "rejected: outside the prime-order subgroup (switch key plus an order 2 point, not itself of small order)",
+      "section": "vv-01 §2.3",
+      "input": {
+        "A": "3d3f2296a938bfdf85e0502aa6eaf5762353a77d38f428b6dcda7da87a7671b8"
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ],
+  "ed_to_x_sec": [
+    {
+      "description": "switch key of these vectors",
+      "section": "vv-01 §2.3",
+      "input": {
+        "seed": "e69d0a76d6effd66c7ff52942c2891e78df5e980fd469ab21f4f2429c22cb4da"
+      },
+      "output": {
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "x_sk": "b83a6bbc51c9a3e03e6e643e2c3ffa6e4fae40cb23eb240890d72a5b3fe8aa70",
+        "DH_PUB(x_sk)": "502caaed1dbd80979afb0efafa74e6617f1f31f6513f4cc9142b10b7a78fd54a",
+        "equals_ED_TO_X_PUB(A)": true
+      }
+    },
+    {
+      "description": "RFC 8032 §7.1 TEST 1 key",
+      "section": "vv-01 §2.3",
+      "input": {
+        "seed": "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae7f60"
+      },
+      "output": {
+        "A": "d75a980182b10ab7d54bfed3c964073a0ee172f3daa62325af021a68f707511a",
+        "x_sk": "307c83864f2833cb427a2ef1c00a013cfdff2768d980c0a3a520f006904de94f",
+        "DH_PUB(x_sk)": "d85e07ec22b0ad881537c2f44d662d1a143cf830c57aca4305d85c7a90f6b62e",
+        "equals_ED_TO_X_PUB(A)": true
+      }
+    }
+  ],
+  "network_keys": [
+    {
+      "description": "network DH key and public key",
+      "section": "vv-01 §4.2",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4"
+      },
+      "output": {
+        "net_dh_sk": "db6fe74d16c2485eb41cdce1cfffcdc22992cdec7bd250839a29eaec68e98c48",
+        "net_pk": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413"
+      }
+    }
+  ],
+  "network_psk": [
+    {
+      "description": "network PSK",
+      "section": "vv-01 §5.2",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4"
+      },
+      "output": {
+        "psk1": "21d65b0340f8700aaf1ac75498a27e3ae6ca7b461cb2f3123d143b2887bff1d6"
+      }
+    }
+  ],
+  "handshake_mac_keys": [
+    {
+      "description": "mac1 and cookie keys towards alice",
+      "section": "vv-01 §5.3",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "R": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      },
+      "output": {
+        "mac1_key": "8092ff2e4b51c9bb9d1aa93ab6976aeb9ff9ddcb0fa01fd99b3c1cbf9b23177f",
+        "cookie_key": "c91dfbc43c27a079ec6cb3a3e1c875fe146972f2953608d43d95e426a743a9fc"
+      }
+    },
+    {
+      "description": "mac1 and cookie keys towards bob",
+      "section": "vv-01 §5.3",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "R": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "mac1_key": "e164c60dd0f494596928662cf85250effd0b9e22ea47dcf81a4ebc5acf71f7e7",
+        "cookie_key": "2e949957c612bb2b1eae75ef36e0cb6b89e641cbcc2f6f7c72204a4f5f1f28ee"
+      }
+    }
+  ],
+  "mdns_tags": [
+    {
+      "description": "mDNS tags at Unix time 1789300000",
+      "section": "vv-01 §5.4",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "unix_time_seconds": 1789300000
+      },
+      "output": {
+        "window": 497027,
+        "window_bytes": "8395070000000000",
+        "mdns_key": "a05675016f35763a6679a59d4037980eb6a2793b562ac8cad00e2cf19199647e",
+        "node_tag_key": "cba3a5f5f5692569d424fe804b1fa6756e101b200cbc901a18bb3678a875a363",
+        "net_tag": "461299bda88997c5bc1aef0b88cf65ad",
+        "node_tag": "53b58f150496e025245116e9315662ce",
+        "net_tag_base32": "iyjjtpnirgl4lpa254fyrt3fvu",
+        "node_tag_base32": "ko2y6fies3qckjcrc3utcvtczy"
+      }
+    },
+    {
+      "description": "mDNS tags at Unix time 1789297200",
+      "section": "vv-01 §5.4",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "unix_time_seconds": 1789297200
+      },
+      "output": {
+        "window": 497027,
+        "window_bytes": "8395070000000000",
+        "mdns_key": "a05675016f35763a6679a59d4037980eb6a2793b562ac8cad00e2cf19199647e",
+        "node_tag_key": "cba3a5f5f5692569d424fe804b1fa6756e101b200cbc901a18bb3678a875a363",
+        "net_tag": "461299bda88997c5bc1aef0b88cf65ad",
+        "node_tag": "53b58f150496e025245116e9315662ce",
+        "net_tag_base32": "iyjjtpnirgl4lpa254fyrt3fvu",
+        "node_tag_base32": "ko2y6fies3qckjcrc3utcvtczy"
+      }
+    },
+    {
+      "description": "mDNS tags at Unix time 1789297199",
+      "section": "vv-01 §5.4",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "unix_time_seconds": 1789297199
+      },
+      "output": {
+        "window": 497026,
+        "window_bytes": "8295070000000000",
+        "mdns_key": "a05675016f35763a6679a59d4037980eb6a2793b562ac8cad00e2cf19199647e",
+        "node_tag_key": "cba3a5f5f5692569d424fe804b1fa6756e101b200cbc901a18bb3678a875a363",
+        "net_tag": "2d9f76fede38ad723d79bcf4c66806d8",
+        "node_tag": "4d37c75628e44cf331abc200ff0c13fa",
+        "net_tag_base32": "fwpxn7w6hcwxeplzxt2mm2ag3a",
+        "node_tag_base32": "ju34ovri4rgpgmnlyiap6dat7i"
+      }
+    }
+  ],
+  "registration_proofs": [
+    {
+      "description": "registration proofs with an exporter binding (b as vv-04 §4.3)",
+      "section": "vv-01 §5.5",
+      "input": {
+        "node_sk": "689f9d7ccc253ef275b57b3b895c90f993688311c2508120277d7a043fbdae73",
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "switch_seed": "e69d0a76d6effd66c7ff52942c2891e78df5e980fd469ab21f4f2429c22cb4da",
+        "A": "b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47",
+        "b": "0102aa4c7540287b73d64a427b9e97f49ae9557aaf6c55af34b434d9dcb981cf9a2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc664164922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413b0c0dd6956c740207a1fafd559150a89dcac5882c70bd7492325825785898e47"
+      },
+      "output": {
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "net_dh_sk": "db6fe74d16c2485eb41cdce1cfffcdc22992cdec7bd250839a29eaec68e98c48",
+        "net_pk": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "switch_x_sk": "b83a6bbc51c9a3e03e6e643e2c3ffa6e4fae40cb23eb240890d72a5b3fe8aa70",
+        "sw_pk": "502caaed1dbd80979afb0efafa74e6617f1f31f6513f4cc9142b10b7a78fd54a",
+        "dh_node": "b34227aa08cd5332f4876452ca3f1421310f169f23e547264159769f224cf430",
+        "dh_net": "765904f145ec32fa74eee54ec358f03170645d60d01e2ef0242a49eb60c62326",
+        "node_proof_key": "ded236a172787fd20ce727dbdceca9bfcec2b1d0bfe1a6801bc17e4478ac764a",
+        "net_proof_key": "9c68dff6fc6afccc8dff3b40c3af6cab05fa66ecacf08d39716cb6d51ec84970",
+        "switch_proof_key": "24468fd730cc74ea62a34ade4cf2b35185851c2302c69ba6b2544fdfd5bc70e0",
+        "node_proof": "1b609bfa45c0d39dc3ff453b3ba9b88aa5a7837bbf47e751623a2c677056e289",
+        "net_proof": "ad2d9d3da449849c566cf9e1adc2b815547d1b09e929246befa92e5574d30add",
+        "switch_proof": "8adf2bc8bf3b8492c1e6451e38eb00b303793420fe20e7be34ab6a1b1ed75733"
+      }
+    }
+  ],
+  "overlay_prefix_and_iid": [
+    {
+      "description": "ULA prefix and IIDs, network_id = net_pk (default)",
+      "section": "vv-01 §5.6, §5.7",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "alice_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "bob_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "ula_prefix": "fdef813d87910000",
+        "alice_iid": "6d0a8bf25ecf91dd",
+        "bob_iid": "c2912f0fd639e00e"
+      }
+    },
+    {
+      "description": "ULA prefix and IIDs, explicit network_id",
+      "section": "vv-01 §5.6, §5.7",
+      "input": {
+        "network_id": "b1464344d764ed6e0065b5bf8147e34cd9b68f4882acc28b97c2a99ef4ee7311",
+        "alice_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "bob_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "ula_prefix": "fd165f71194e0000",
+        "alice_iid": "2e1edc27ff34d9fd",
+        "bob_iid": "b131358b19abf1dc"
+      }
+    }
+  ],
+  "key_id": [
+    {
+      "description": "key-id of alice",
+      "section": "vv-01 §5.8",
+      "input": {
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      },
+      "output": {
+        "key_id": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla"
+      }
+    },
+    {
+      "description": "key-id of bob",
+      "section": "vv-01 §5.8",
+      "input": {
+        "node_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "key_id": "zt57nlirjk4ncanjhczeaeo4cgm5th2sis472jgutdhrtui3lbza"
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+[Unit]
+Description=vardevall switch
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=vv-switch
+Group=vv-switch
+ExecStart=/usr/local/bin/vv-switch -c /etc/vardevall/switch.toml
+# SIGHUP re-reads the tokens and the certificate files (README, "Reload"). A failed reload is
+# reported in the journal, not in the exit status of `systemctl reload`.
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=2
+LimitNOFILE=65536
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+NoNewPrivileges=true
+ProtectSystem=strict
+# The configuration, the token file and the certificate files are only read, also on reload.
+# Certificates kept elsewhere (certbot: /etc/letsencrypt) stay readable under ProtectSystem=strict;
+# the service user needs permission to read them.
+ReadOnlyPaths=/etc/vardevall
+# Only with certificate.acme and cache_dir = "/var/lib/vv-switch/acme":
+# StateDirectory=vv-switch
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+ProtectProc=invisible
+ProcSubset=pid
+# AF_UNIX: the runtime's signal handling (SIGTERM, SIGHUP) uses a socket pair.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+UMask=0077
+RemoveIPC=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,194 @@
+# vv-switch configuration (vv-07 §6). Relative paths are taken relative to this file. Durations
+# are strings such as "250ms", "10s", "2m", "24h" (vv-07 §2.2). Every value shown as a default
+# is the default; settings in comments are off.
+#
+# Two complete examples: personal.toml (tokens, STUN behind the token, TURN silent) and
+# public.toml (a web address behind Cloudflare or a tunnel daemon, no STUN or TURN).
+
+# Where to accept TLS connections: TCP for HTTP/2 and HTTP/1.1, and UDP on the same port for
+# HTTP/3. `[]` (with plain_listen below) serves no TLS at all.
+listen = ["[::]:443"]
+key_file = "switch.key"
+
+# --- Switch addresses and certificates (vv-04 §2.1, §2.3) -------------------------------------
+#
+# The hosts clients register with. A registration names the host of the switch address it used,
+# and the proofs are bound to it (vv-04 §4.3), so a proof made for another switch's name is
+# useless here (vv-04 §9). The switch accepts only the hosts below plus the web names of
+# `certificate`, and answers `invalid-proof` to any other. List the host of every pinned
+# address (a DNS name, or an IPv4 or IPv6 literal without brackets) and, behind a proxy, the
+# public name; a web name in `certificate` is already served. There is no default for a switch
+# without a web name: the file is refused until a name is listed. The host is as nodes write it
+# in `<key>@host` or `host`, without port, in lowercase for names.
+names = ["switch.example.org"]
+#
+# A pinned address, `<key>@switch.example.org`, is authenticated by the switch key alone: the
+# switch presents a self-signed certificate made from its key at every start, and nodes compare
+# its public key with the one in the address. Nothing needs configuring for it.
+#
+# A web address, `vv.example.org`, is authenticated through the Web PKI, so it needs a
+# certificate from a CA. The switch picks the certificate by the name in the TLS handshake: the
+# names below get the Web PKI certificate, every other name and connections without a name (an IP
+# address) get the pinned one. A name therefore serves one form only; use two names to offer both
+# (switch.example.org pinned, vv.example.org web).
+#
+# PEM files: the chain, leaf first, and its key. The files are read again on SIGHUP
+# (`systemctl reload vv-switch`) and within 30 s of a change, so a renewal needs no restart; a pair
+# that cannot be read, or whose key does not belong to the certificate, leaves the previous one.
+# The service user must be able to read both files (the unit makes /etc/vardevall read-only to
+# the service; /etc/letsencrypt needs ReadOnlyPaths too).
+# certificate = { cert_file = "fullchain.pem", key_file = "privkey.pem", names = ["vv.example.org"] }
+#
+# Or let the switch obtain and renew it from an ACME CA with TLS-ALPN-01 (RFC 8737), on the HTTPS
+# port: the name must resolve to this switch and port 443 must be reachable from the CA. Until the
+# first certificate is issued the web name fails the handshake; the pinned name is not affected.
+# certificate = { acme = "vv.example.org", contact = "ops@example.org" }
+# Optional: directory = "https://acme-staging-v02.api.letsencrypt.org/directory" (default: Let's
+# Encrypt production), ca_file = "ca.pem" (trust this CA for the directory, for a private CA), and
+# cache_dir = "acme" (keeps the account key and certificate there across restarts; without it
+# nothing is written to disk and a certificate is ordered at every start, which Let's Encrypt
+# rate-limits).
+#
+# TCP responses carry `Alt-Svc: h3=":<port>"` so browsers find HTTP/3.
+
+# --- Behind a proxy (vv-04 §2.5) ---------------------------------------------------------------
+#
+# TLS passthrough (a load balancer that routes by name and does not decrypt) keeps every address
+# form working. If it sends the PROXY protocol, version 2, list its addresses: every connection
+# from them must start with the header, and the client address in it is the one the limits use.
+# Connections from any other address are never parsed for it.
+# proxy_protocol = ["10.0.0.0/8"]
+#
+# A terminating proxy (Cloudflare, a CDN, a tunnel daemon such as cloudflared) sees the plaintext,
+# so only web addresses work through it, and registrations cannot be bound to the TLS connection:
+# the switch advertises `"binding": "challenge"` in /v0/info. The client address comes from a
+# header the proxy sets, believed only from the addresses in `from`: `Forwarded` (RFC 7239) and
+# `X-Forwarded-For` give the last entry, the one the nearest proxy appended; any other name, such
+# as `CF-Connecting-IP`, holds one address. Without it every client counts as the proxy's address.
+# binding = "exporter"                  # or "challenge"
+# forwarded_header = { name = "CF-Connecting-IP", from = ["127.0.0.1/32", "::1/128"] }
+#
+# Plain HTTP for a tunnel daemon on this machine, which terminates TLS itself. Loopback addresses
+# only. The daemon's address (127.0.0.1) is then the connection's peer: list it in
+# forwarded_header.from, or every client counts as 127.0.0.1.
+# plain_listen = ["127.0.0.1:8080"]
+
+# --- Operator tokens (vv-04 §3.3) --------------------------------------------------------------
+#
+# Without tokens, anyone who proves a network secret may register. Add tokens to close it.
+# [tokens]
+# accepted = ["change-me-long-random-string"]
+# file = "tokens.txt"            # one token per line, '#' starts a comment; readable by the service user
+#
+# This section, the token file, [[tokens.turn]] below and the certificate files are the only
+# settings that `systemctl reload vv-switch` (SIGHUP) applies; everything else needs a restart. A
+# reload that cannot read or parse either file keeps the previous tokens. Removing the section
+# opens registration, adding tokens closes it, and `token_required` in /v0/info follows. Sessions
+# already admitted stay valid; a removed token gets no new registrations and, while tokens are
+# required, no new TURN or STUN credentials. Credentials already issued live until their `ttl`
+# and keep their limits.
+#
+# TURN limits for the holders of a token (vv-04 §4.5): their credentials advertise these and the
+# embedded TURN server enforces them. A field left out inherits [turn]; 0 means unlimited. The
+# token must also be accepted above. The class travels in the credential, so nothing is stored;
+# a reload gives changed limits a new class and leaves the issued credentials as they are.
+# [[tokens.turn]]
+# token = "change-me-long-random-string"
+# bits_per_second = 50000000
+# bytes = 0
+
+# --- STUN (vv-04 §3.4, §4.7) -------------------------------------------------------------------
+#
+# The URIs listed in /v0/info for nodes to find their public address. The embedded TURN server
+# below answers STUN on its port too; `listen` here runs a STUN-only server on UDP, for a second
+# address (at least two servers at different addresses let nodes detect symmetric NATs, vv-05
+# §3.2). Bind one socket per address: a wildcard socket may answer from another address, and a
+# NAT drops that reply. These servers exist only with the cargo feature `stun-turn` (on by
+# default).
+# [stun]
+# listen = ["203.0.113.6:3478"]
+# uris = ["stun:switch.example.org:3478", "stun:switch2.example.org:3478"]
+#
+# auth = true restricts the servers (these and the Binding service of the TURN port) to
+# registered nodes: `stun_auth` is true in /v0/info, the registration response and POST /v0/stun
+# carry a credential, and a Binding request without a valid one gets no reply at all. It needs
+# [turn] below, whose secret the credentials are made with.
+# auth = false
+
+# --- TURN (vv-04 §4.5) -------------------------------------------------------------------------
+#
+# The switch issues credentials at registration and on POST /v0/turn. Without this section `turn`
+# is false in /v0/info.
+# [turn]
+# urls = ["turn:switch.example.org:3478?transport=udp", "turns:switch.example.org:443?transport=tcp"]
+# secret_file = "turn.secret"            # or `secret = "..."`
+# ttl = "24h"                            # validity of one credential
+# bits_per_second = 10000000             # per allocation; enforced by the embedded server
+# bytes = 10000000000                    # per credential; enforced by the embedded server
+# The two limits above are the defaults when [turn.server] is present. Without it nothing
+# enforces them: they are only advertised, so leave them out unless the external server does.
+#
+# silent = true: the embedded server sends nothing to a request that does not carry a valid
+# MESSAGE-INTEGRITY for a current credential, so its ports look closed to scanners and it cannot
+# reflect a request into a larger 401. The credentials then always carry `realm` and `nonce`, so
+# nodes send an authenticated first Allocate.
+# silent = false
+#
+# The embedded TURN server (RFC 8656), in the same process. Omit this table to point `urls` at an
+# external server (coturn, deploy/coturn/turnserver.conf) that shares the secret.
+# [turn.server]
+# listen = ["[::]:3478"]                 # UDP; also answers STUN Binding
+# relay_ipv4 = "203.0.113.5"             # bound for relayed addresses and given to clients
+# relay_ipv6 = "2001:db8::5"
+# Behind a 1:1 NAT (cloud VMs that own only a private address) bind the local address and give
+# clients the public one; a *_public needs its relay_ipv4/relay_ipv6, set to a specific address.
+# relay_ipv4 = "10.0.0.54"
+# relay_ipv4_public = "203.0.113.5"
+# relay_ipv6_public = "2001:db8::5"      # likewise for relay_ipv6
+# relay_ports = "49152-65535"
+# realm = "vardevall"
+# max_allocations = 5000
+# allocations_per_credential = 4
+# allocations_per_ip = 16
+# allow_private_peers = false            # relaying to private, loopback and link-local peers, and to the switch's own ports
+# tls = true                             # TURN over TLS on the HTTPS port, ALPN stun.turn
+
+# --- Limits (vv-04 §8) -------------------------------------------------------------------------
+#
+# Every value below is the default.
+# [limits]
+# max_forward_size = 4096                 # bytes, decoded
+# max_registrations = 10000
+# max_networks = 2000
+# registrations_per_network = 256
+# max_event_streams = 10000
+# max_connections = 20000
+# stun_per_ip_per_second = 20.0           # STUN/TURN requests on the UDP ports and over TLS, per client address
+# stun_per_ip_burst = 100.0               # (IPv6 per /64); over the limit, requests get no answer
+# max_connections_per_ip = 256            # not applied to a proxy's own address
+# register_per_ip_per_second = 0.5        # register + challenge, per IPv4 or IPv6 /64
+# register_per_ip_burst = 20
+# register_per_network_per_second = 2.0
+# register_per_network_burst = 30
+# members_per_second = 5.0
+# members_burst = 30
+# forwards_per_second = 20.0              # per network
+# forwards_burst = 100
+# sender_bytes_per_second = 8000          # per registered node
+# sender_bytes_burst = 32768
+# network_bytes_per_second = 65536
+# network_bytes_burst = 262144
+# session_bytes = 50000000                # per session, until it registers again
+
+# [timeouts]
+# tls_handshake = "10s"
+# request_header = "10s"
+# request_body = "10s"
+# idle = "2m"
+# reconnect_grace = "30s"
+# keepalive = "10s"
+
+# One line to stderr (the journal) with the sizes of the tables and the requests refused since
+# the previous line. Counts only: no key, address or token. 0 turns it off.
+# [log]
+# status_interval = "10m"

@@ -1,0 +1,22 @@
+# docker compose up -d  (build context is the parent directory, see Dockerfile)
+# For the embedded STUN/TURN server see deploy/container.toml: uncomment the turn.secret mount and
+# the UDP ports below. A relay port range this small keeps the published port list short.
+services:
+  vv-switch:
+    build:
+      context: ..
+      dockerfile: switch/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "443:8443/tcp"
+      - "443:8443/udp"          # HTTP/3
+      # - "3478:3478/udp"
+      # - "49152-49351:49152-49351/udp"
+    volumes:
+      - ./switch.key:/run/secrets/switch.key:ro
+      # - ./turn.secret:/run/secrets/turn.secret:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    ulimits:
+      nofile: 65536

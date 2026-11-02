@@ -1,0 +1,15 @@
+target/
+.DS_Store
+.idea/
+# Separate checkouts that live next to the code, not part of the workspace.
+/spec/
+/test-configs/
+/rewrite/
+
+# Android app: machine-specific, built or fetched.
+/android/local.properties
+/android/.gradle/
+/android/.kotlin/
+/android/build/
+/android/app/build/
+/android/app/src/main/jniLibs/

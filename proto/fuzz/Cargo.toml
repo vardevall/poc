@@ -1,0 +1,65 @@
+[package]
+name = "vardevall-proto-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+license = "MPL-2.0"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+rand_core = "0.10"
+vardevall-proto = { path = ".." }
+vardevall-switch-proto = { path = "../../switch-proto" }
+
+[workspace]
+
+[[bin]]
+name = "base32"
+path = "fuzz_targets/base32.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "message"
+path = "fuzz_targets/message.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "payload"
+path = "fuzz_targets/payload.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "frame"
+path = "fuzz_targets/frame.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "datagram"
+path = "fuzz_targets/datagram.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "switch_api"
+path = "fuzz_targets/switch_api.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "mdns"
+path = "fuzz_targets/mdns.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "names"
+path = "fuzz_targets/names.rs"
+test = false
+doc = false

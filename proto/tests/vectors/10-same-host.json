@@ -1,0 +1,31 @@
+{
+  "document": "vve-10 Same-Host Registry",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "registry_entry": [
+    {
+      "description": "same-host registry entry of alice",
+      "section": "vve-10 §2.2",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "unix_time_seconds": 1789300000,
+        "seal_nonce": "0e8ee17c4d911e200c07b9fa59cdb8cd8ddd288680b0f2d0",
+        "port": 51820
+      },
+      "output": {
+        "file_name": "ko2y6fies3qckjcr.json",
+        "content": {
+          "v": 0,
+          "window": 497027,
+          "n": "iyjjtpnirgl4lpa254fyrt3fvu",
+          "k": "ko2y6fies3qckjcrc3utcvtczy",
+          "p": "b2hoc7cnsepcadahxh5fttnyzwg52kegqcypfudbrrbve6belkhj4a2hgpi6afqg3yijg2s64fyng4jx2wer3v4hivgsmifidsq2s2mpwznafmsd3yqa",
+          "port": 51820
+        },
+        "content_json": "{\"v\":0,\"window\":497027,\"n\":\"iyjjtpnirgl4lpa254fyrt3fvu\",\"k\":\"ko2y6fies3qckjcrc3utcvtczy\",\"p\":\"b2hoc7cnsepcadahxh5fttnyzwg52kegqcypfudbrrbve6belkhj4a2hgpi6afqg3yijg2s64fyng4jx2wer3v4hivgsmifidsq2s2mpwznafmsd3yqa\",\"port\":51820}"
+      },
+      "note": "content_json is one valid serialisation; JSON has no canonical form (vv-01 §3.3)"
+    }
+  ]
+}

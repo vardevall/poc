@@ -1,0 +1,43 @@
+[package]
+name = "vardevall"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Runtime of vardevall: socket demux, candidates, mDNS, driving the sans-IO protocol crate."
+publish = false
+
+[lib]
+name = "vardevall"
+
+[dependencies]
+vardevall-proto.workspace = true
+vardevall-switch-proto.workspace = true
+vardevall-tls-pq.workspace = true
+bytes.workspace = true
+getrandom = { workspace = true, features = ["sys_rng"] }
+h3.workspace = true
+h3-quinn.workspace = true
+http.workspace = true
+http-body-util.workspace = true
+hyper = { workspace = true, features = ["client", "http1", "http2"] }
+hyper-util = { workspace = true, features = ["tokio"] }
+if-addrs = "0.15"
+quinn.workspace = true
+rand_core.workspace = true
+rustls.workspace = true
+simple-dns.workspace = true
+socket2 = { version = "0.6", features = ["all"] }
+thiserror.workspace = true
+tokio = { workspace = true, features = ["rt", "net", "time", "sync", "macros", "io-util"] }
+tokio-rustls.workspace = true
+webpki-roots = "1"
+x509-parser = { version = "0.18", default-features = false }
+
+[features]
+fwmark = []
+
+[dev-dependencies]
+rcgen.workspace = true
+vardevall-switch.workspace = true
+tokio = { workspace = true, features = ["rt", "net", "time", "sync", "macros", "rt-multi-thread", "test-util"] }

@@ -1,0 +1,909 @@
+{
+  "document": "vv-05 Connection Establishment",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "candidate_encoding": [
+    {
+      "description": "punch over IPv6 (written in RFC 5952 form) and IPv4, and a relay",
+      "section": "vv-05 §2.2",
+      "input": {
+        "candidates": [
+          [
+            "punch",
+            "2001:0DB8:0000:0000:0000:0000:0000:0007",
+            51820
+          ],
+          [
+            "punch",
+            "203.0.113.9",
+            40000
+          ],
+          [
+            "relay",
+            "198.51.100.4",
+            49152
+          ]
+        ]
+      },
+      "output": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]:51820"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:40000"
+          },
+          {
+            "kind": "relay",
+            "addr": "198.51.100.4:49152"
+          }
+        ],
+        "cand_json": "[{\"kind\":\"punch\",\"addr\":\"[2001:db8::7]:51820\"},{\"kind\":\"punch\",\"addr\":\"203.0.113.9:40000\"},{\"kind\":\"relay\",\"addr\":\"198.51.100.4:49152\"}]"
+      }
+    },
+    {
+      "description": "a punch candidate from a metered interface",
+      "section": "vv-05 §2.2",
+      "input": {
+        "kind": "punch",
+        "ip": "2001:db8:5::9",
+        "port": 51820,
+        "metered": true
+      },
+      "output": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:db8:5::9]:51820",
+            "metered": true
+          }
+        ],
+        "cand_json": "[{\"kind\":\"punch\",\"addr\":\"[2001:db8:5::9]:51820\",\"metered\":true}]"
+      }
+    }
+  ],
+  "candidate_parsing": [
+    {
+      "description": "two usable candidates",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]:51820"
+          },
+          {
+            "kind": "relay",
+            "addr": "198.51.100.4:49152"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "20010db8000000000000000000000007",
+            "port": 51820,
+            "metered": false
+          },
+          {
+            "kind": "relay",
+            "ip": "c6336404",
+            "port": 49152,
+            "metered": true
+          }
+        ]
+      }
+    },
+    {
+      "description": "kinds other than punch and relay are ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:51820"
+          },
+          {
+            "kind": "mdns",
+            "addr": "[fe80::1]:51820"
+          },
+          {
+            "kind": "static",
+            "addr": "203.0.113.7:51820"
+          },
+          {
+            "kind": "learned",
+            "addr": "203.0.113.6:2"
+          },
+          {
+            "kind": "future",
+            "addr": "203.0.113.8:1"
+          },
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]:51820"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "20010db8000000000000000000000007",
+            "port": 51820,
+            "metered": false
+          }
+        ]
+      }
+    },
+    {
+      "description": "non-canonical IPv6 text is parsed",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:0db8:0000::0007]:51820"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "20010db8000000000000000000000007",
+            "port": 51820,
+            "metered": false
+          }
+        ]
+      }
+    },
+    {
+      "description": "unbracketed IPv6 is ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "2001:db8::7:51820"
+          }
+        ]
+      },
+      "output": {
+        "usable": []
+      }
+    },
+    {
+      "description": "IPv6 zone id is ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[fe80::1%eth0]:51820"
+          }
+        ]
+      },
+      "output": {
+        "usable": []
+      }
+    },
+    {
+      "description": "missing port is ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9"
+          }
+        ]
+      },
+      "output": {
+        "usable": []
+      }
+    },
+    {
+      "description": "port 0 and port 65536 are ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:0"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:65536"
+          }
+        ]
+      },
+      "output": {
+        "usable": []
+      }
+    },
+    {
+      "description": "more than 8 entries: only the first 8 are considered",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "203.0.113.1:40001"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.2:40002"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.3:40003"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.4:40004"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.5:40005"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.6:40006"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.7:40007"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.8:40008"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:40009"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.10:400010"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "cb007101",
+            "port": 40001,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007102",
+            "port": 40002,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007103",
+            "port": 40003,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007104",
+            "port": 40004,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007105",
+            "port": 40005,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007106",
+            "port": 40006,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007107",
+            "port": 40007,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007108",
+            "port": 40008,
+            "metered": false
+          }
+        ]
+      }
+    },
+    {
+      "description": "ignored entries still count towards the first 8",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "local",
+            "addr": "127.0.0.1:1"
+          },
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]:51820"
+          }
+        ]
+      },
+      "output": {
+        "usable": []
+      }
+    },
+    {
+      "description": "a malformed entry is skipped and the others are kept",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          "not an object",
+          {
+            "kind": "punch"
+          },
+          {
+            "kind": "punch",
+            "addr": 51820
+          },
+          {
+            "addr": "203.0.113.9:1"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:080"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.009:80"
+          },
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]"
+          },
+          {
+            "kind": "relay",
+            "addr": "198.51.100.4:49152"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "relay",
+            "ip": "c6336404",
+            "port": 49152,
+            "metered": true
+          }
+        ]
+      }
+    },
+    {
+      "description": "IPv6 text forms accepted by RFC 4291",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:DB8::7]:1"
+          },
+          {
+            "kind": "punch",
+            "addr": "[::ffff:192.0.2.1]:2"
+          },
+          {
+            "kind": "relay",
+            "addr": "[2001:db8:0:0:0:0:0:7]:3"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "20010db8000000000000000000000007",
+            "port": 1,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "00000000000000000000ffffc0000201",
+            "port": 2,
+            "metered": false
+          },
+          {
+            "kind": "relay",
+            "ip": "20010db8000000000000000000000007",
+            "port": 3,
+            "metered": true
+          }
+        ]
+      }
+    },
+    {
+      "description": "metered flag: true, absent, and non-boolean values; a relay is metered by kind",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "[2001:db8:5::9]:51820",
+            "metered": true
+          },
+          {
+            "kind": "punch",
+            "addr": "[2001:db8::7]:51820"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:1",
+            "metered": "true"
+          },
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:2",
+            "metered": 1
+          },
+          {
+            "kind": "relay",
+            "addr": "198.51.100.4:49152"
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "20010db8000500000000000000000009",
+            "port": 51820,
+            "metered": true
+          },
+          {
+            "kind": "punch",
+            "ip": "20010db8000000000000000000000007",
+            "port": 51820,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007109",
+            "port": 1,
+            "metered": false
+          },
+          {
+            "kind": "punch",
+            "ip": "cb007109",
+            "port": 2,
+            "metered": false
+          },
+          {
+            "kind": "relay",
+            "ip": "c6336404",
+            "port": 49152,
+            "metered": true
+          }
+        ]
+      }
+    },
+    {
+      "description": "unknown members of an entry are ignored",
+      "section": "vv-05 §2.2",
+      "input": {
+        "cand": [
+          {
+            "kind": "punch",
+            "addr": "203.0.113.9:1",
+            "future": [
+              1,
+              2
+            ]
+          }
+        ]
+      },
+      "output": {
+        "usable": [
+          {
+            "kind": "punch",
+            "ip": "cb007109",
+            "port": 1,
+            "metered": false
+          }
+        ]
+      }
+    }
+  ],
+  "control_encoding": [
+    {
+      "description": "cand with one punch candidate",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "cand",
+          "seq": "7",
+          "cand": [
+            {
+              "kind": "punch",
+              "addr": "[2001:db8::7]:51820"
+            }
+          ]
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a2263616e64222c22736571223a2237222c2263616e64223a5b7b226b696e64223a2270756e6368222c2261646472223a225b323030313a6462383a3a375d3a3531383230227d5d7d",
+        "parsed": {
+          "t": "cand",
+          "seq": 7,
+          "usable": [
+            {
+              "kind": "punch",
+              "ip": "20010db8000000000000000000000007",
+              "port": 51820,
+              "metered": false
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "ask",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "ask"
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a2261736b227d",
+        "parsed": {
+          "t": "ask"
+        }
+      }
+    },
+    {
+      "description": "report from two sources, confirming cand 7",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "report",
+          "rx": [
+            "1052",
+            "977"
+          ],
+          "d": 3,
+          "cand": "7"
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231303532222c22393737225d2c2264223a332c2263616e64223a2237227d",
+        "parsed": {
+          "t": "report",
+          "rx": [
+            1052,
+            977
+          ],
+          "d": 3,
+          "cand": 7
+        }
+      }
+    },
+    {
+      "description": "report with a counter above 2^53",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "report",
+          "rx": [
+            "9007199254740993"
+          ],
+          "d": 0
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2239303037313939323534373430393933225d2c2264223a307d",
+        "parsed": {
+          "t": "report",
+          "rx": [
+            9007199254740993
+          ],
+          "d": 0
+        }
+      }
+    },
+    {
+      "description": "report answering the ask sent with counter 1203",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "report",
+          "rx": [
+            "1060"
+          ],
+          "d": 1,
+          "a": "1203"
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231303630225d2c2264223a312c2261223a2231323033227d",
+        "parsed": {
+          "t": "report",
+          "rx": [
+            1060
+          ],
+          "d": 1,
+          "a": 1203
+        }
+      }
+    },
+    {
+      "description": "answer to an ask when nothing arrived",
+      "section": "vv-05 §4.9",
+      "input": {
+        "message": {
+          "t": "report",
+          "rx": [],
+          "d": 0,
+          "a": "1204"
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b5d2c2264223a302c2261223a2231323034227d",
+        "parsed": {
+          "t": "report",
+          "rx": [],
+          "d": 0,
+          "a": 1204
+        }
+      }
+    }
+  ],
+  "control_parsing": [
+    {
+      "description": "padding after the object is allowed",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2261736b227d202020"
+      },
+      "output": {
+        "parsed": {
+          "t": "ask"
+        }
+      }
+    },
+    {
+      "description": "unknown members are ignored",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2261736b222c2278223a317d"
+      },
+      "output": {
+        "parsed": {
+          "t": "ask"
+        }
+      }
+    },
+    {
+      "description": "unknown t is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2268656c6c6f227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "missing t is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b22736571223a2231227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "duplicate member names are dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2261736b222c2274223a2261736b227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "not an object is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "005b2261736b225d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "first byte not 0 is not a control message",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "017b2274223a2261736b227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "seq as a JSON number is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2263616e64222c22736571223a372c2263616e64223a5b5d7d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "seq with a leading zero is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2263616e64222c22736571223a223037222c2263616e64223a5b5d7d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "seq of 2^64 is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2263616e64222c22736571223a223138343436373434303733373039353531363136222c2263616e64223a5b5d7d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "a malformed candidate skips only that entry",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a2263616e64222c22736571223a2232222c2263616e64223a5b7b226b696e64223a2270756e6368227d2c7b226b696e64223a2272656c6179222c2261646472223a223139382e35312e3130302e343a3439313532227d5d7d"
+      },
+      "output": {
+        "parsed": {
+          "t": "cand",
+          "seq": 2,
+          "usable": [
+            {
+              "kind": "relay",
+              "ip": "c6336404",
+              "port": 49152,
+              "metered": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "empty rx is accepted: nothing arrived (answer to an ask)",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b5d2c2264223a307d"
+      },
+      "output": {
+        "parsed": {
+          "t": "report",
+          "rx": [],
+          "d": 0
+        }
+      }
+    },
+    {
+      "description": "five rx entries are dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231222c2232222c2233222c2234222c2235225d2c2264223a307d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "d missing is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d7d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "d negative is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d2c2264223a2d317d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "d as a fraction is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d2c2264223a312e357d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "malformed optional cand is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d2c2264223a302c2263616e64223a337d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "a as a JSON number is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d2c2264223a302c2261223a357d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "a with a leading zero is dropped",
+      "section": "vv-05 §4.9",
+      "input": {
+        "plaintext": "007b2274223a227265706f7274222c227278223a5b2231225d2c2264223a302c2261223a223035227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    }
+  ]
+}

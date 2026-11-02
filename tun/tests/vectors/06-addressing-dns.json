@@ -1,0 +1,380 @@
+{
+  "document": "vv-06 Overlay Addressing and DNS",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "addresses": [
+    {
+      "description": "addresses of alice, network_id = net_pk (default)",
+      "section": "vv-06 §2.1",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      },
+      "output": {
+        "ula_prefix": "fdef813d87910000",
+        "iid": "6d0a8bf25ecf91dd",
+        "ula": "fdef813d879100006d0a8bf25ecf91dd",
+        "ula_text": "fdef:813d:8791:0:6d0a:8bf2:5ecf:91dd",
+        "link_local": "fe800000000000006d0a8bf25ecf91dd",
+        "link_local_text": "fe80::6d0a:8bf2:5ecf:91dd"
+      }
+    },
+    {
+      "description": "addresses of bob, network_id = net_pk (default)",
+      "section": "vv-06 §2.1",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "node_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "ula_prefix": "fdef813d87910000",
+        "iid": "c2912f0fd639e00e",
+        "ula": "fdef813d87910000c2912f0fd639e00e",
+        "ula_text": "fdef:813d:8791:0:c291:2f0f:d639:e00e",
+        "link_local": "fe80000000000000c2912f0fd639e00e",
+        "link_local_text": "fe80::c291:2f0f:d639:e00e"
+      }
+    },
+    {
+      "description": "addresses of alice, explicit network_id",
+      "section": "vv-06 §2.1",
+      "input": {
+        "network_id": "b1464344d764ed6e0065b5bf8147e34cd9b68f4882acc28b97c2a99ef4ee7311",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416"
+      },
+      "output": {
+        "ula_prefix": "fd165f71194e0000",
+        "iid": "2e1edc27ff34d9fd",
+        "ula": "fd165f71194e00002e1edc27ff34d9fd",
+        "ula_text": "fd16:5f71:194e:0:2e1e:dc27:ff34:d9fd",
+        "link_local": "fe800000000000002e1edc27ff34d9fd",
+        "link_local_text": "fe80::2e1e:dc27:ff34:d9fd"
+      }
+    },
+    {
+      "description": "addresses of bob, explicit network_id",
+      "section": "vv-06 §2.1",
+      "input": {
+        "network_id": "b1464344d764ed6e0065b5bf8147e34cd9b68f4882acc28b97c2a99ef4ee7311",
+        "node_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      },
+      "output": {
+        "ula_prefix": "fd165f71194e0000",
+        "iid": "b131358b19abf1dc",
+        "ula": "fd165f71194e0000b131358b19abf1dc",
+        "ula_text": "fd16:5f71:194e:0:b131:358b:19ab:f1dc",
+        "link_local": "fe80000000000000b131358b19abf1dc",
+        "link_local_text": "fe80::b131:358b:19ab:f1dc"
+      }
+    }
+  ],
+  "hostname_sanitisation": [
+    {
+      "description": "plain",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "laptop"
+      },
+      "output": {
+        "name": "laptop"
+      }
+    },
+    {
+      "description": "first label only, ASCII lowercased",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "Alices-MacBook-Pro.local"
+      },
+      "output": {
+        "name": "alices-macbook-pro"
+      }
+    },
+    {
+      "description": "underscore and space become '-'",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "my_host name"
+      },
+      "output": {
+        "name": "my-host-name"
+      }
+    },
+    {
+      "description": "leading and trailing '-' are trimmed",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "--router--"
+      },
+      "output": {
+        "name": "router"
+      }
+    },
+    {
+      "description": "runs of '-' are collapsed",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "a__b--c"
+      },
+      "output": {
+        "name": "a-b-c"
+      }
+    },
+    {
+      "description": "a non-ASCII letter is one code point, so one '-', merged with the next '-'",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "café-box"
+      },
+      "output": {
+        "name": "caf-box"
+      }
+    },
+    {
+      "description": "non-ASCII uppercase is replaced, not lowercased",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "ÉCOLE"
+      },
+      "output": {
+        "name": "cole"
+      }
+    },
+    {
+      "description": "a code point outside the BMP is one '-'",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "home😀server"
+      },
+      "output": {
+        "name": "home-server"
+      }
+    },
+    {
+      "description": "nothing remains: no own name",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "___.example"
+      },
+      "output": {
+        "name": null
+      }
+    },
+    {
+      "description": "empty hostname: no own name",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": ""
+      },
+      "output": {
+        "name": null
+      }
+    },
+    {
+      "description": "longer than 51 characters is truncated",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "output": {
+        "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      }
+    },
+    {
+      "description": "exactly 52 characters is truncated to 51, so never a key-id length",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      },
+      "output": {
+        "name": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+      }
+    },
+    {
+      "description": "truncation that leaves a trailing '-' is trimmed again",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "cccccccccccccccccccccccccccccccccccccccccccccccccc_deeeeeeeeee"
+      },
+      "output": {
+        "name": "cccccccccccccccccccccccccccccccccccccccccccccccccc"
+      }
+    },
+    {
+      "description": "digits only",
+      "section": "vv-06 §4.2",
+      "input": {
+        "hostname": "1234"
+      },
+      "output": {
+        "name": "1234"
+      }
+    }
+  ],
+  "name_labels": [
+    {
+      "description": "simple",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "nas"
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "hyphen inside",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "home-server"
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "63 characters",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "64 characters",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "52 characters (key-id length)",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "51 characters",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "leading hyphen",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "-nas"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "trailing hyphen",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "nas-"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "uppercase (names are written lowercase)",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "NAS"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "underscore",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "my_nas"
+      },
+      "output": {
+        "valid": false
+      }
+    },
+    {
+      "description": "single character",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": "x"
+      },
+      "output": {
+        "valid": true
+      }
+    },
+    {
+      "description": "empty",
+      "section": "vv-06 §4.2",
+      "input": {
+        "label": ""
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ],
+  "ptr_names": [
+    {
+      "description": "PTR for the ula of alice, configured name",
+      "section": "vv-06 §4.3",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "domain": "home.internal",
+        "configured_name": "laptop"
+      },
+      "output": {
+        "ula": "fdef813d879100006d0a8bf25ecf91dd",
+        "ptr_query_name": "d.d.1.9.f.c.e.5.2.f.b.8.a.0.d.6.0.0.0.0.1.9.7.8.d.3.1.8.f.e.d.f.ip6.arpa",
+        "ptr_answer": "laptop.home.internal",
+        "aaaa_query_name_by_key_id": "fr7w42dedcpk5273ilh54d2pfdq4g32jxd4fopo76zelbxogmqla.home.internal"
+      }
+    },
+    {
+      "description": "PTR for the ula of bob, no configured name",
+      "section": "vv-06 §4.3",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413",
+        "node_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872",
+        "domain": "home.internal",
+        "configured_name": null
+      },
+      "output": {
+        "ula": "fdef813d87910000c2912f0fd639e00e",
+        "ptr_query_name": "e.0.0.e.9.3.6.d.f.0.f.2.1.9.2.c.0.0.0.0.1.9.7.8.d.3.1.8.f.e.d.f.ip6.arpa",
+        "ptr_answer": "zt57nlirjk4ncanjhczeaeo4cgm5th2sis472jgutdhrtui3lbza.home.internal",
+        "aaaa_query_name_by_key_id": "zt57nlirjk4ncanjhczeaeo4cgm5th2sis472jgutdhrtui3lbza.home.internal"
+      }
+    },
+    {
+      "description": "reverse zone routed to the overlay resolver",
+      "section": "vv-06 §4.4",
+      "input": {
+        "network_id": "4922546c33892e07359467d6976c3bd90734120918899ecb1bb9a6419d46c413"
+      },
+      "output": {
+        "ula_prefix": "fdef813d87910000",
+        "reverse_zone": "0.0.0.0.1.9.7.8.d.3.1.8.f.e.d.f.ip6.arpa"
+      }
+    }
+  ]
+}

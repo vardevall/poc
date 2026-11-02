@@ -1,0 +1,23 @@
+[package]
+name = "vardevall-tls-pq"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "X25519MLKEM768 key exchange for rustls on the ring provider, built on the ml-kem crate."
+publish = false
+
+[lib]
+name = "vardevall_tls_pq"
+
+[dependencies]
+getrandom = { workspace = true, features = ["sys_rng"] }
+ml-kem.workspace = true
+rand_core.workspace = true
+rustls.workspace = true
+zeroize.workspace = true
+
+[dev-dependencies]
+rcgen = { workspace = true, features = ["pem"] }
+# An independent implementation of the same group, to test against.
+rustls = { workspace = true, features = ["aws-lc-rs"] }

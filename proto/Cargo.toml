@@ -1,0 +1,35 @@
+[package]
+name = "vardevall-proto"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Sans-IO protocol crate of vardevall: keys, hybrid Noise handshake, sessions, data frames."
+publish = false
+
+[lib]
+name = "vardevall_proto"
+
+[dependencies]
+blake3 = { version = "1", default-features = false }
+chacha20poly1305 = { version = "0.11", default-features = false, features = ["alloc"] }
+curve25519-dalek = { version = "5", default-features = false, features = ["zeroize"] }
+data-encoding = { version = "2", default-features = false, features = ["alloc"] }
+data-encoding-macro = { version = "0.1", default-features = false }
+hmac = { version = "0.13", default-features = false }
+ml-kem.workspace = true
+rand_core.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2 = { version = "0.11", default-features = false }
+subtle.workspace = true
+thiserror.workspace = true
+zeroize = { workspace = true, features = ["derive"] }
+
+[features]
+# The network simulator, for tests.
+sim = []
+
+[dev-dependencies]
+proptest = "1"
+vardevall-proto = { path = ".", features = ["sim"] }

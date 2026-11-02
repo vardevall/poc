@@ -1,0 +1,19 @@
+[package]
+name = "vardevall-jni"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "JNI interface of the vardevall engine for the Android app."
+publish = false
+
+[lib]
+name = "vardevall_jni"
+crate-type = ["cdylib"]
+
+[dependencies]
+vardevall-tun.workspace = true
+jni = "0.21"
+libc.workspace = true
+serde_json.workspace = true
+tokio = { workspace = true, features = ["rt", "net", "sync"] }

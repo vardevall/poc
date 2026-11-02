@@ -1,0 +1,90 @@
+{
+  "document": "vve-09 mDNS Discovery",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "mdns_announcement": [
+    {
+      "description": "mDNS announcement of alice",
+      "section": "vve-09 §2.1; vv-01 §5.4",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "node_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "unix_time_seconds": 1789300000,
+        "seal_nonce": "0e8ee17c4d911e200c07b9fa59cdb8cd8ddd288680b0f2d0",
+        "port": 51820
+      },
+      "output": {
+        "window": 497027,
+        "mdns_key": "a05675016f35763a6679a59d4037980eb6a2793b562ac8cad00e2cf19199647e",
+        "net_tag": "461299bda88997c5bc1aef0b88cf65ad",
+        "node_tag": "53b58f150496e025245116e9315662ce",
+        "sealed": "0e8ee17c4d911e200c07b9fa59cdb8cd8ddd288680b0f2d0618c435278245a8e9e034733d1e01606de10936a5ee170d37137d5891dd787454d2620a81ca1a9698fb65a02b243de20",
+        "instance": "ko2y6fies3qckjcr",
+        "service_instance_name": "ko2y6fies3qckjcr._vardevall._udp.local",
+        "txt_strings": [
+          "v=0",
+          "n=iyjjtpnirgl4lpa254fyrt3fvu",
+          "k=ko2y6fies3qckjcrc3utcvtczy",
+          "p=b2hoc7cnsepcadahxh5fttnyzwg52kegqcypfudbrrbve6belkhj4a2hgpi6afqg3yijg2s64fyng4jx2wer3v4hivgsmifidsq2s2mpwznafmsd3yqa"
+        ],
+        "txt_rdata": "03763d301c6e3d69796a6a74706e6972676c346c706132353466797274336676751c6b3d6b6f327936666965733371636b6a637263337574637674637a7976703d6232686f6337636e73657063616461687868356674746e797a776735326b6567716379706675646272726276653662656c6b686a3461326867706936616671673379696a673273363466796e67346a783277657233763468697667736d6966696473713273326d70777a6e61666d736433797161"
+      },
+      "note": "txt_rdata lists the strings in the order of vve-09 §2.1; DNS-SD does not fix an order"
+    }
+  ],
+  "mdns_matching": [
+    {
+      "description": "precomputed tags for windows w - 1, w, w + 1",
+      "section": "vve-09 §2.2",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "alice_pk": "2c7f6e6864189eaeebfb42cfde0f4f28e1c36f49b8f8573ddff648b0ddc66416",
+        "bob_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872",
+        "w": 497027
+      },
+      "output": {
+        "windows": {
+          "497026": {
+            "net_tag": "2d9f76fede38ad723d79bcf4c66806d8",
+            "alice_node_tag": "4d37c75628e44cf331abc200ff0c13fa",
+            "bob_node_tag": "66af442f1a8b5819a80327da62bfb317"
+          },
+          "497027": {
+            "net_tag": "461299bda88997c5bc1aef0b88cf65ad",
+            "alice_node_tag": "53b58f150496e025245116e9315662ce",
+            "bob_node_tag": "9c351c7046a72e709cc688102524b3ad"
+          },
+          "497028": {
+            "net_tag": "16c3b2012edbf5ba2ad4c4d641b3701f",
+            "alice_node_tag": "d82b2123c3aabce02827d6ed383f9cba",
+            "bob_node_tag": "b91cb13b7f38c835326cc7da0a892b72"
+          }
+        }
+      }
+    },
+    {
+      "description": "opening p from window w - 1 with the matching window",
+      "section": "vve-09 §2.2 step 3",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "window": 497026,
+        "sealed": "c86d9f942d30f2b34b543efc5fbb50494f7ea2c0964aa659762d63be4864dd9621cef5314f78be9aca55839d76e09bd9f0b10e210018fb56c477225b5d9f799a6ab693bf55e4d1b5"
+      },
+      "output": {
+        "node_pk": "ccfbf6ad114ab8d101a938b24011dc1199d99f5244b9fd24d498cf19d11b5872"
+      }
+    },
+    {
+      "description": "opening p (sealed in window w) with window w + 1 fails",
+      "section": "vve-09 §2.2 step 3",
+      "input": {
+        "net_sk": "9b075c8873ec0065ba084cf41437eac662f6f14a904d133ad9412bf02a15f5f4",
+        "window": 497028,
+        "sealed": "0e8ee17c4d911e200c07b9fa59cdb8cd8ddd288680b0f2d0618c435278245a8e9e034733d1e01606de10936a5ee170d37137d5891dd787454d2620a81ca1a9698fb65a02b243de20"
+      },
+      "output": {
+        "valid": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+#include? "../Local.xcconfig"
+
+SWIFT_VERSION = 5.0
+CODE_SIGN_STYLE = Automatic
+ARCHS = arm64
+ONLY_ACTIVE_ARCH = NO

@@ -1,0 +1,29 @@
+[package]
+name = "vardevall-switch-proto"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Sans-IO switch crate of vardevall: switch API types, registration proofs, addresses, STUN/TURN codec."
+publish = false
+
+[lib]
+name = "vardevall_switch_proto"
+
+[dependencies]
+vardevall-proto.workspace = true
+crc32fast = { version = "1", default-features = false }
+data-encoding = { version = "2", default-features = false, features = ["alloc"] }
+hmac = { version = "0.13", default-features = false }
+md-5 = { version = "0.11", default-features = false }
+rand_core.workspace = true
+sha1 = { version = "0.11", default-features = false }
+sha2 = { version = "0.11", default-features = false }
+subtle.workspace = true
+thiserror.workspace = true
+zeroize.workspace = true
+
+[dev-dependencies]
+vardevall-proto = { workspace = true, features = ["sim"] }
+proptest = "1"
+serde_json.workspace = true

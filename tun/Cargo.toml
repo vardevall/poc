@@ -1,0 +1,48 @@
+[package]
+name = "vardevall-tun"
+version = "0.0.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+description = "Interface mode of vardevall: packet router, overlay DNS, interface files and the vv command."
+publish = false
+
+[lib]
+name = "vardevall_tun"
+
+[[bin]]
+name = "vv"
+path = "src/bin/vv/main.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "vv-quick"
+path = "src/bin/vv-quick/main.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "echo_peer"
+required-features = ["cli"]
+
+[features]
+default = ["cli"]
+cli = ["dep:anyhow", "dep:clap", "dep:libc", "dep:toml_edit", "tokio/signal", "vardevall/fwmark"]
+
+[dependencies]
+vardevall-proto.workspace = true
+vardevall.workspace = true
+rand_core.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+simple-dns.workspace = true
+thiserror.workspace = true
+tokio = { workspace = true, features = ["rt", "net", "time", "sync", "macros", "io-util"] }
+toml.workspace = true
+toml_edit = { workspace = true, optional = true }
+anyhow = { workspace = true, optional = true }
+clap = { workspace = true, optional = true }
+libc = { workspace = true, optional = true }
+
+[dev-dependencies]
+vardevall-switch.workspace = true
+tokio = { workspace = true, features = ["rt", "net", "time", "sync", "macros", "rt-multi-thread"] }

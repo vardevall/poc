@@ -1,0 +1,39 @@
+# Deployment (a): a personal switch for your own devices. Pinned address only, registration
+# closed by tokens, STUN behind the token and TURN silent. Open TCP 443, UDP 443, UDP 3478 and the
+# relay range (UDP 49152-65535) to the internet. deploy/switch.toml documents every setting.
+#
+#   vv-switch genkey > switch.key && chmod 600 switch.key
+#   vv-switch -c personal.toml address switch.example.org      # the address for the nodes
+#   openssl rand -base64 32 > turn.secret          # shared by the HTTP API and the relay
+#   openssl rand -base64 24 > tokens.txt           # one token per line: one per device, or one for all
+
+listen = ["[::]:443"]
+key_file = "switch.key"
+
+# The host of the pinned address nodes use, `<key>@switch.example.org`; an IP address is listed the
+# same way. Registrations naming any other host are refused (vv-04 §4.4).
+names = ["switch.example.org"]
+
+[tokens]
+file = "tokens.txt"
+
+# Registered nodes only; everyone else gets silence from UDP 3478.
+[stun]
+uris = ["stun:switch.example.org:3478"]
+auth = true
+
+[turn]
+urls = ["turn:switch.example.org:3478?transport=udp", "turns:switch.example.org:443?transport=tcp"]
+secret_file = "turn.secret"
+silent = true
+
+# On a cloud VM behind a 1:1 NAT (Oracle Cloud, AWS) the relay addresses are the private ones and
+# the *_public ones are what clients are given; on a host that owns its public addresses leave the
+# *_public settings out. Bind one socket per address (a wildcard socket may answer from another
+# address, and the NAT drops that).
+[turn.server]
+listen = ["10.0.0.54:3478", "[2001:db8::5]:3478"]
+relay_ipv4 = "10.0.0.54"
+relay_ipv4_public = "203.0.113.5"
+relay_ipv6 = "2001:db8::5"
+relay_ports = "49152-65535"

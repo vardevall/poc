@@ -1,0 +1,247 @@
+{
+  "document": "vve-14 Service Discovery",
+  "generator": "spec/reference (python generate.py)",
+  "conventions": "byte strings are lowercase hex (vv-01 §3.4); integers are JSON numbers unless they may exceed 2^53 - 1; text is a JSON string",
+  "message_encoding": [
+    {
+      "description": "two services, one with the default proto",
+      "section": "vve-14 §2.2",
+      "input": {
+        "message": {
+          "t": "svc",
+          "seq": "3",
+          "svc": [
+            {
+              "name": "web",
+              "port": 443
+            },
+            {
+              "name": "dns",
+              "port": 53,
+              "proto": "udp"
+            }
+          ]
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a22737663222c22736571223a2233222c22737663223a5b7b226e616d65223a22776562222c22706f7274223a3434337d2c7b226e616d65223a22646e73222c22706f7274223a35332c2270726f746f223a22756470227d5d7d",
+        "parsed": {
+          "t": "svc",
+          "seq": 3,
+          "services": [
+            {
+              "name": "web",
+              "port": 443,
+              "proto": "tcp"
+            },
+            {
+              "name": "dns",
+              "port": 53,
+              "proto": "udp"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "everything withdrawn",
+      "section": "vve-14 §2.2",
+      "input": {
+        "message": {
+          "t": "svc",
+          "seq": "4",
+          "svc": []
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a22737663222c22736571223a2234222c22737663223a5b5d7d",
+        "parsed": {
+          "t": "svc",
+          "seq": 4,
+          "services": []
+        }
+      }
+    },
+    {
+      "description": "acknowledgement",
+      "section": "vve-14 §2.2",
+      "input": {
+        "message": {
+          "t": "svcack",
+          "seq": "3"
+        }
+      },
+      "output": {
+        "plaintext": "007b2274223a2273766361636b222c22736571223a2233227d",
+        "parsed": {
+          "t": "svcack",
+          "seq": 3
+        }
+      }
+    }
+  ],
+  "message_parsing": [
+    {
+      "description": "a malformed entry skips only that entry",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a22737663222c22736571223a2231222c22737663223a5b22776562222c7b226e616d65223a22576562222c22706f7274223a38307d2c7b226e616d65223a22776562222c22706f7274223a307d2c7b226e616d65223a22776562222c22706f7274223a38302c2270726f746f223a2273637470227d2c7b226e616d65223a226f6b222c22706f7274223a383038307d5d7d"
+      },
+      "output": {
+        "parsed": {
+          "t": "svc",
+          "seq": 1,
+          "services": [
+            {
+              "name": "ok",
+              "port": 8080,
+              "proto": "tcp"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "a 52-character name is not a valid label (it would collide with a key-id)",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a22737663222c22736571223a2231222c22737663223a5b7b226e616d65223a2261616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161616161222c22706f7274223a38307d5d7d"
+      },
+      "output": {
+        "parsed": {
+          "t": "svc",
+          "seq": 1,
+          "services": []
+        }
+      }
+    },
+    {
+      "description": "only the first 16 entries count",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a22737663222c22736571223a2231222c22737663223a5b7b226e616d65223a227331222c22706f7274223a313030317d2c7b226e616d65223a227332222c22706f7274223a313030327d2c7b226e616d65223a227333222c22706f7274223a313030337d2c7b226e616d65223a227334222c22706f7274223a313030347d2c7b226e616d65223a227335222c22706f7274223a313030357d2c7b226e616d65223a227336222c22706f7274223a313030367d2c7b226e616d65223a227337222c22706f7274223a313030377d2c7b226e616d65223a227338222c22706f7274223a313030387d2c7b226e616d65223a227339222c22706f7274223a313030397d2c7b226e616d65223a22733130222c22706f7274223a313031307d2c7b226e616d65223a22733131222c22706f7274223a313031317d2c7b226e616d65223a22733132222c22706f7274223a313031327d2c7b226e616d65223a22733133222c22706f7274223a313031337d2c7b226e616d65223a22733134222c22706f7274223a313031347d2c7b226e616d65223a22733135222c22706f7274223a313031357d2c7b226e616d65223a22733136222c22706f7274223a313031367d2c7b226e616d65223a22733137222c22706f7274223a313031377d2c7b226e616d65223a22733138222c22706f7274223a313031387d5d7d"
+      },
+      "output": {
+        "parsed": {
+          "t": "svc",
+          "seq": 1,
+          "services": [
+            {
+              "name": "s1",
+              "port": 1001,
+              "proto": "tcp"
+            },
+            {
+              "name": "s2",
+              "port": 1002,
+              "proto": "tcp"
+            },
+            {
+              "name": "s3",
+              "port": 1003,
+              "proto": "tcp"
+            },
+            {
+              "name": "s4",
+              "port": 1004,
+              "proto": "tcp"
+            },
+            {
+              "name": "s5",
+              "port": 1005,
+              "proto": "tcp"
+            },
+            {
+              "name": "s6",
+              "port": 1006,
+              "proto": "tcp"
+            },
+            {
+              "name": "s7",
+              "port": 1007,
+              "proto": "tcp"
+            },
+            {
+              "name": "s8",
+              "port": 1008,
+              "proto": "tcp"
+            },
+            {
+              "name": "s9",
+              "port": 1009,
+              "proto": "tcp"
+            },
+            {
+              "name": "s10",
+              "port": 1010,
+              "proto": "tcp"
+            },
+            {
+              "name": "s11",
+              "port": 1011,
+              "proto": "tcp"
+            },
+            {
+              "name": "s12",
+              "port": 1012,
+              "proto": "tcp"
+            },
+            {
+              "name": "s13",
+              "port": 1013,
+              "proto": "tcp"
+            },
+            {
+              "name": "s14",
+              "port": 1014,
+              "proto": "tcp"
+            },
+            {
+              "name": "s15",
+              "port": 1015,
+              "proto": "tcp"
+            },
+            {
+              "name": "s16",
+              "port": 1016,
+              "proto": "tcp"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "description": "svc missing is dropped",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a22737663222c22736571223a2231227d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "seq as a JSON number is dropped",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a2273766361636b222c22736571223a337d"
+      },
+      "output": {
+        "parsed": null
+      }
+    },
+    {
+      "description": "unknown members are ignored",
+      "section": "vve-14 §2.2",
+      "input": {
+        "plaintext": "007b2274223a2273766361636b222c22736571223a2233222c2278223a747275657d"
+      },
+      "output": {
+        "parsed": {
+          "t": "svcack",
+          "seq": 3
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+listen = ["[::]:8443"]
+key_file = "/run/secrets/switch.key"
+
+# The host nodes use in the switch address, `<key>@switch.example.org`: set the real one, or the
+# switch refuses every registration (vv-04 §4.4).
+names = ["switch.example.org"]
+
+# STUN and TURN: set the real host name and addresses, create turn.secret and uncomment the
+# turn.secret mount and the UDP ports in compose.yaml. `auth = true` and `silent = true` keep
+# both servers quiet to anyone who has not registered (deploy/personal.toml).
+# [stun]
+# uris = ["stun:switch.example.org:3478"]
+# auth = true
+#
+# [turn]
+# urls = ["turn:switch.example.org:3478?transport=udp", "turns:switch.example.org:443?transport=tcp"]
+# secret_file = "/run/secrets/turn.secret"
+# silent = true
+#
+# [turn.server]
+# listen = ["[::]:3478"]
+# relay_ipv4 = "203.0.113.5"
+# relay_ports = "49152-49351"

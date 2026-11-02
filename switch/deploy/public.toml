@@ -1,0 +1,41 @@
+# Deployment (b): a public switch on a web address behind Cloudflare, or any terminating proxy
+# or tunnel daemon that runs on this machine. No STUN, no TURN, no tokens; the limits are all that
+# protects it, so size them (deploy/switch.toml lists them with their defaults). Nodes and
+# browsers use the address `vv.example.org` and learn the switch key from /v0/info.
+#
+# With cloudflared the switch needs no inbound port at all:
+#   cloudflared tunnel route dns <tunnel> vv.example.org
+#   ingress:  - hostname: vv.example.org
+#               service: http://127.0.0.1:8080
+# Cloudflare then holds the certificate, speaks HTTP/3 to clients and sees every request, member
+# addresses and keys included (vv-04 §9): a web address trusts the proxy as much as the Web PKI.
+
+key_file = "switch.key"
+
+# The public name of the web address. The proxy owns the certificate, so the switch cannot learn
+# the name: registrations naming any other host are refused (vv-04 §4.4).
+names = ["vv.example.org"]
+
+# No TLS here: the tunnel daemon connects to the loopback port in plain HTTP.
+listen = []
+plain_listen = ["127.0.0.1:8080"]
+
+# The client's TLS exporter is Cloudflare's, so registrations are bound to a challenge.
+binding = "challenge"
+
+# The client address, from the header Cloudflare sets, believed only from the tunnel daemon.
+forwarded_header = { name = "CF-Connecting-IP", from = ["127.0.0.1/32", "::1/128"] }
+
+# A switch with no token requirement relies on these. The per-address limits and the caps are the
+# ones that hold, since network keys cost nothing to create.
+[limits]
+max_registrations = 10000
+max_networks = 2000
+register_per_ip_per_second = 0.5
+register_per_ip_burst = 20
+
+# To skip the tunnel and serve the web address directly (Let's Encrypt, no proxy), replace the
+# three proxy settings and `listen` with:
+#   listen = ["[::]:443"]
+#   certificate = { acme = "vv.example.org", contact = "ops@example.org", cache_dir = "acme" }
+# and open TCP and UDP 443.
